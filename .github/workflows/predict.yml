@@ -1,36 +1,28 @@
 name: Run Lottery Prediction
-
 on:
   workflow_dispatch:
-
 jobs:
   predict:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install paddlepaddle pandas numpy scikit-learn
-
       - name: Show files
         run: |
           ls -lah
-          ls -lah checkpoints_best || echo "WARNING: checkpoints_best not found!"
-          ls -lah checkpoints || echo "WARNING: checkpoints not found!"
-
+          ls -lah checkpoints_best || true
+          ls -lah checkpoints || true
       - name: Run CPU prediction
         run: |
           python predict_cpu_fixed.py
-
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
