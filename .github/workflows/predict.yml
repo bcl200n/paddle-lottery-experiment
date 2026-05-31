@@ -3,9 +3,6 @@ name: Run Lottery Prediction
 on:
   workflow_dispatch:
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   predict:
     runs-on: ubuntu-latest
@@ -22,54 +19,20 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install paddlepaddle pandas numpy scikit-learn requests beautifulsoup4 lxml
+          pip install paddlepaddle pandas numpy scikit-learn
 
-      - name: Show repository files before update
+      - name: Show files
         run: |
-          echo "===== Repository files ====="
           ls -lah
-
-      - name: Force update lottery data
-        run: |
-          echo "===== Updating lottery data ====="
-          if [ -f update_dlt_official.py ]; then
-            python update_dlt_official.py
-          elif [ -f update_data1.py ]; then
-            python update_data1.py
-          else
-            echo "No update script found. Skip data update."
-          fi
-
-      - name: Verify latest CSV
-        run: |
-          echo "===== Latest lotto.csv top 10 rows ====="
-          head -n 10 lotto.csv || echo "lotto.csv not found"
-
-          echo ""
-          echo "===== Latest lotto_clean.csv top 10 rows ====="
-          head -n 10 lotto_clean.csv || echo "lotto_clean.csv not found"
-
-      - name: Show model files
-        run: |
-          echo "===== checkpoints_best ====="
-          ls -lah checkpoints_best || true
-
-          echo ""
-          echo "===== checkpoints ====="
-          ls -lah checkpoints || true
+          ls -lah checkpoints_best || echo "WARNING: checkpoints_best not found!"
+          ls -lah checkpoints || echo "WARNING: checkpoints not found!"
 
       - name: Run CPU prediction
         run: |
-          echo "===== Running CPU prediction ====="
-          set -o pipefail
-          python predict_cpu_fixed.py 2>&1 | tee prediction_output.txt
+          python predict_cpu_fixed.py
 
-      - name: Upload prediction results and latest data
+      - name: Upload results
         uses: actions/upload-artifact@v4
         with:
           name: prediction-results
-          path: |
-            prediction_output.txt
-            latest_data_preview.txt
-            lotto.csv
-            lotto_clean.csv
+          path: prediction_*.txt
