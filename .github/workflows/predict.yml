@@ -24,51 +24,30 @@ jobs:
           python -m pip install --upgrade pip
           pip install paddlepaddle pandas numpy scikit-learn requests beautifulsoup4 lxml
 
-      - name: Show files before update
+      - name: Show repository files before update
         run: |
           echo "===== Repository files ====="
           ls -lah
 
-          echo ""
-          echo "===== CSV files before update ====="
-          ls -lah *.csv || true
-
-      - name: Update lottery data
+      - name: Force update lottery data
         run: |
           echo "===== Updating lottery data ====="
-
           if [ -f update_dlt_official.py ]; then
-            echo "Found update_dlt_official.py, running it..."
             python update_dlt_official.py
           elif [ -f update_data1.py ]; then
-            echo "Found update_data1.py, running it..."
             python update_data1.py
           else
             echo "No update script found. Skip data update."
           fi
 
-      - name: Save latest data preview
+      - name: Verify latest CSV
         run: |
-          echo "===== Latest data preview =====" > latest_data_preview.txt
-          echo "" >> latest_data_preview.txt
-
-          echo "===== Latest lotto.csv top 10 rows =====" >> latest_data_preview.txt
-          if [ -f lotto.csv ]; then
-            head -n 10 lotto.csv >> latest_data_preview.txt
-          else
-            echo "lotto.csv not found" >> latest_data_preview.txt
-          fi
-
-          echo "" >> latest_data_preview.txt
-          echo "===== Latest lotto_clean.csv top 10 rows =====" >> latest_data_preview.txt
-          if [ -f lotto_clean.csv ]; then
-            head -n 10 lotto_clean.csv >> latest_data_preview.txt
-          else
-            echo "lotto_clean.csv not found" >> latest_data_preview.txt
-          fi
+          echo "===== Latest lotto.csv top 10 rows ====="
+          head -n 10 lotto.csv || echo "lotto.csv not found"
 
           echo ""
-          cat latest_data_preview.txt
+          echo "===== Latest lotto_clean.csv top 10 rows ====="
+          head -n 10 lotto_clean.csv || echo "lotto_clean.csv not found"
 
       - name: Show model files
         run: |
@@ -85,10 +64,12 @@ jobs:
           set -o pipefail
           python predict_cpu_fixed.py 2>&1 | tee prediction_output.txt
 
-      - name: Upload prediction results
+      - name: Upload prediction results and latest data
         uses: actions/upload-artifact@v4
         with:
           name: prediction-results
           path: |
             prediction_output.txt
             latest_data_preview.txt
+            lotto.csv
+            lotto_clean.csv
