@@ -1,0 +1,36 @@
+name: Run CPU Prediction
+
+on:
+  workflow_dispatch:
+
+jobs:
+  predict:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install paddlepaddle
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run prediction
+        run: |
+          python infer_cpu.py
+
+      - name: Upload prediction results
+        uses: actions/upload-artifact@v4
+        with:
+          name: prediction-results
+          path: |
+            *.txt
+            *.csv
+            *.json
