@@ -52,6 +52,12 @@ paddle-lottery-experiment/
 ├── requirements.txt       # Python dependencies
 └── lotto.csv              # Example time-series dataset
 ```
+### GPU inference
+
+For machines with GPU support and PaddlePaddle GPU installed, use:
+
+```bash
+python predict.py
 
 ### Checkpoint inference
 
