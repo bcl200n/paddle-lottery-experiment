@@ -30,6 +30,17 @@ The lottery dataset is used only as a convenient public time-series example. The
 * Rule-based sampling constraints.
 * Experiment summaries and reproducible logs.
 
+## Inference
+
+This repository provides several inference scripts for running the trained PaddlePaddle model and generating candidate outputs.
+
+### CPU inference
+
+For machines without GPU support, use:
+
+```bash
+python predict_cpu.py
+
 ## Repository Structure
 
 ```text
