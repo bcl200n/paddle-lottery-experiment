@@ -3,6 +3,9 @@ name: Run Lottery Prediction
 on:
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   predict:
     runs-on: ubuntu-latest
@@ -19,12 +22,38 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install paddlepaddle pandas numpy scikit-learn
+          pip install paddlepaddle pandas numpy scikit-learn requests beautifulsoup4 lxml
 
-      - name: Show files
+      - name: Show files before update
         run: |
+          echo "Repository files:"
           ls -lah
+          echo "Check data files:"
+          ls -lah *.csv || true
+
+      - name: Update lottery data
+        run: |
+          echo "Updating lottery data..."
+          if [ -f update_dlt_official.py ]; then
+            python update_dlt_official.py
+          elif [ -f update_data1.py ]; then
+            python update_data1.py
+          else
+            echo "No update script found. Skip data update."
+          fi
+
+      - name: Show latest data after update
+        run: |
+          echo "Latest lotto.csv:"
+          tail -n 5 lotto.csv || true
+          echo "Latest lotto_clean.csv:"
+          tail -n 5 lotto_clean.csv || true
+
+      - name: Show model files
+        run: |
+          echo "checkpoints_best:"
           ls -lah checkpoints_best || true
+          echo "checkpoints:"
           ls -lah checkpoints || true
 
       - name: Run CPU prediction
