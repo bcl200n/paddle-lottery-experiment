@@ -28,7 +28,7 @@ jobs:
         run: |
           echo "Repository files:"
           ls -lah
-          echo "Check data files:"
+          echo "CSV files before update:"
           ls -lah *.csv || true
 
       - name: Update lottery data
@@ -42,12 +42,14 @@ jobs:
             echo "No update script found. Skip data update."
           fi
 
-      - name: Show latest data after update
+      - name: Save latest data preview
         run: |
-          echo "Latest lotto.csv:"
-          tail -n 5 lotto.csv || true
-          echo "Latest lotto_clean.csv:"
-          tail -n 5 lotto_clean.csv || true
+          echo "Latest lotto.csv:" > latest_data_preview.txt
+          tail -n 10 lotto.csv >> latest_data_preview.txt || true
+          echo "" >> latest_data_preview.txt
+          echo "Latest lotto_clean.csv:" >> latest_data_preview.txt
+          tail -n 10 lotto_clean.csv >> latest_data_preview.txt || true
+          cat latest_data_preview.txt
 
       - name: Show model files
         run: |
@@ -58,13 +60,13 @@ jobs:
 
       - name: Run CPU prediction
         run: |
-          python predict_cpu_fixed.py
+          set -o pipefail
+          python predict_cpu_fixed.py 2>&1 | tee prediction_output.txt
 
-      - name: Upload results
+      - name: Upload prediction results
         uses: actions/upload-artifact@v4
         with:
           name: prediction-results
           path: |
-            *.txt
-            *.csv
-            *.json
+            prediction_output.txt
+            latest_data_preview.txt
