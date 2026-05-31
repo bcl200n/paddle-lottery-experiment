@@ -53,6 +53,16 @@ paddle-lottery-experiment/
 └── lotto.csv              # Example time-series dataset
 ```
 
+### Checkpoint inference
+
+If a trained checkpoint is available in `checkpoints_best/`, run:
+
+```bash
+python predict_best.py
+```
+
+The script loads the best available checkpoint from the current experimental run.
+
 ## Installation
 
 Clone this repository:
