@@ -26,17 +26,22 @@ jobs:
 
       - name: Show files before update
         run: |
-          echo "Repository files:"
+          echo "===== Repository files ====="
           ls -lah
-          echo "CSV files before update:"
+
+          echo ""
+          echo "===== CSV files before update ====="
           ls -lah *.csv || true
 
       - name: Update lottery data
         run: |
-          echo "Updating lottery data..."
+          echo "===== Updating lottery data ====="
+
           if [ -f update_dlt_official.py ]; then
+            echo "Found update_dlt_official.py, running it..."
             python update_dlt_official.py
           elif [ -f update_data1.py ]; then
+            echo "Found update_data1.py, running it..."
             python update_data1.py
           else
             echo "No update script found. Skip data update."
@@ -44,22 +49,39 @@ jobs:
 
       - name: Save latest data preview
         run: |
-          echo "Latest lotto.csv:" > latest_data_preview.txt
-          tail -n 10 lotto.csv >> latest_data_preview.txt || true
+          echo "===== Latest data preview =====" > latest_data_preview.txt
           echo "" >> latest_data_preview.txt
-          echo "Latest lotto_clean.csv:" >> latest_data_preview.txt
-          tail -n 10 lotto_clean.csv >> latest_data_preview.txt || true
+
+          echo "===== Latest lotto.csv top 10 rows =====" >> latest_data_preview.txt
+          if [ -f lotto.csv ]; then
+            head -n 10 lotto.csv >> latest_data_preview.txt
+          else
+            echo "lotto.csv not found" >> latest_data_preview.txt
+          fi
+
+          echo "" >> latest_data_preview.txt
+          echo "===== Latest lotto_clean.csv top 10 rows =====" >> latest_data_preview.txt
+          if [ -f lotto_clean.csv ]; then
+            head -n 10 lotto_clean.csv >> latest_data_preview.txt
+          else
+            echo "lotto_clean.csv not found" >> latest_data_preview.txt
+          fi
+
+          echo ""
           cat latest_data_preview.txt
 
       - name: Show model files
         run: |
-          echo "checkpoints_best:"
+          echo "===== checkpoints_best ====="
           ls -lah checkpoints_best || true
-          echo "checkpoints:"
+
+          echo ""
+          echo "===== checkpoints ====="
           ls -lah checkpoints || true
 
       - name: Run CPU prediction
         run: |
+          echo "===== Running CPU prediction ====="
           set -o pipefail
           python predict_cpu_fixed.py 2>&1 | tee prediction_output.txt
 
